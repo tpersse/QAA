@@ -1,0 +1,66 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+```{r}
+library(tidyverse)
+```
+
+```{r}
+R1_3 <- read.table('3_R1.txt')
+R2_3 <- read.table('3_R2.txt')
+R1_28 <- read.table('28_R1.txt')
+R2_28 <- read.table('28_R2.txt')
+```
+
+```{r}
+R1_3_counts <- R1_3 %>% group_by(V1) %>% count()
+R1_28_counts <- R1_28 %>% group_by(V1) %>% count()
+R2_3_counts <- R2_3 %>% group_by(V1) %>% count()
+R2_28_counts <- R2_28 %>% group_by(V1) %>% count()
+
+read1 <- rep('read1', times=length(R1_3_counts$n))
+read2 <- rep('read2', times=length(R2_3_counts$n))
+
+R1_3_counts <- cbind(R1_3_counts, read1)
+colnames(R1_3_counts) <- c('length1', 'Read_1', 'file1')
+R2_3_counts <- cbind(R2_3_counts, read2)
+colnames(R2_3_counts) <- c('length2', 'Read_2', 'file2')
+merge_3 <- cbind(R1_3_counts, R2_3_counts)
+
+R1_28_counts <- cbind(R1_28_counts, read1)
+colnames(R1_28_counts) <- c('length1', 'Read_1', 'file1')
+R2_28_counts <- cbind(R2_28_counts, read2)
+colnames(R2_28_counts) <- c('length2', 'Read_2', 'file2')
+merge_28 <- cbind(R1_28_counts, R2_28_counts)
+
+long_3 <- pivot_longer(merge_3, cols=c(Read_1, Read_2), names_to = 'File', values_to = 'count')
+long_28 <- pivot_longer(merge_28, cols=c(Read_1, Read_2), names_to = 'File', values_to = 'count')
+```
+
+```{r}
+
+plot1<- ggplot(long_3, aes(x = length1, y=count, color=File, fill = File)) +
+  geom_bar(stat="identity", position="dodge") +
+  scale_y_log10() +
+  labs(title='Comparison of length distribution between R1 and R2 of 3_2B_control_S3_L008', x='length', y='frequency (log scale)') +
+  theme_bw()
+plot1
+ggsave(plot = plot1, filename = 'plot1.png')
+```
+
+
+
+```{r}
+plot2 <- ggplot(long_28, aes(x = length1, y=count, color=File, fill = File)) +
+  geom_bar(stat="identity", position="dodge") +
+  scale_y_log10() +
+  labs(title='Comparison of length distribution between R1 and R2 of 28_4D_mbnl_S20_L008', x='length', y='frequency (log scale)') +
+  theme_bw() 
+plot2
+ggsave(plot = plot2, filename = 'plot2.png')
+```
+
+
+
